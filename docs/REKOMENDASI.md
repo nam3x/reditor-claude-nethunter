@@ -22,6 +22,12 @@ Urut dari yang paling berdampak untuk alur HP (NetHunter, arm64, tanpa GPU).
 - Kenapa: mendeteksi pergantian shot di klip panjang, sehingga `reditor edit auto` bisa memilih `in`
   di awal shot yang bersih (bukan asal tengah klip). Python murni + OpenCV, jalan di arm64.
 
+## 3b. Pelacakan wajah/badan yang lebih akurat
+- Saat ini: Haar (OpenCV 4) + u2net_human_seg (onnxruntime) — terbukti jalan di CPU arm64.
+- YuNet (`cv2.FaceDetectorYN`, model ONNX ±230 KB dari opencv_zoo) jauh lebih tahan pose miring daripada Haar dan
+  tetap ada di OpenCV 5; kandidat pengganti Haar bila modelnya bisa diunduh di HP.
+- MediaPipe versi baru tidak membawa model bawaan (harus unduh .task terpisah) — dicatat oleh skill video-editor-shorts.
+
 ## 4. auto-editor — buang bagian diam/kosong di RAW FOOTAGE
 - Repo: https://github.com/WyattBlue/auto-editor
 - Kenapa: memotong otomatis bagian tanpa suara/gerak pada footage talking-head atau vlog.

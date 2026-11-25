@@ -7,7 +7,7 @@ Edit video **langsung dari HP** lewat terminal NetHunter: Claude Code + skill `r
 raw-footage/   klip & foto mentah            VO/      voiceover final (dipakai apa adanya)
 referensi/     gambar/video acuan gaya       Musik/   musik latar (di-duck otomatis di bawah VO)
 VFX/           light leak, flare, dust, grain, LUT .cube, transisi, SFX (prosedural, bebas lisensi)
-editor/        editor ffmpeg (EDL JSON), transkripsi, generator VFX/LUT
+editor/        editor ffmpeg (EDL JSON), transkripsi, generator VFX/LUT, beat/track/outline (Shorts Beat)
 studio/        proyek Remotion (Shorts 9:16, YouTube 16:9, highlight; takarir karaoke; sumber fakta)
 bin/reditor    CLI satu pintu
 .claude/skills/reditor-nethunter/   skill Claude Code (aturan sutradara + referensi preset)
@@ -40,6 +40,15 @@ reditor edit auto 9:16      # susun edit.json dari raw-footage
 reditor edit preview        # 540p cepat
 reditor edit render         # 1080p final -> out/edit_final.mp4
 reditor export              # salin ke /sdcard/Movies/reditor
+```
+**Manual (Mode Shorts Beat — footage + musik, gaya video-editor-shorts):**
+```bash
+cp /sdcard/DCIM/Camera/*.mp4 raw-footage/ ; cp /sdcard/Music/lagu.mp3 Musik/
+reditor shorts analyze                       # grid footage + BPM/beat/drop
+reditor shorts init 30 --title "Judul" --artist "Artis"   # plan.json (drop di detik ~15)
+reditor shorts sheet                         # cek crop 3:4 tiap shot
+reditor shorts build                         # klip 3:4 + lacak wajah/badan + outline + master musik
+nohup reditor shorts render v1 > out/shorts.log 2>&1 &   # render per potongan -> studio/out/ShortsBeat_v1.mp4
 ```
 **Manual (Mode Remotion / motion graphic):**
 ```bash

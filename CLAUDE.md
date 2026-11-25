@@ -8,7 +8,8 @@ Komunikasi dengan pengguna memakai **Bahasa Indonesia**.
   Sumber Fakta, loudness) tidak boleh dilanggar.
 - CLI satu pintu: `bin/reditor` (`reditor help`). Mulai dengan `reditor doctor` bila ada error lingkungan.
 - Folder input pengguna: `raw-footage/`, `referensi/`, `VO/`, `Musik/`, `VFX/`. Jangan commit media pengguna.
-- Dua mesin: `editor/` (ffmpeg, ringan, untuk footage) dan `studio/` (Remotion, untuk motion graphic).
+- Tiga alur: `reditor edit` (ffmpeg, footage + VO), `reditor shorts` (Shorts sinkron beat dari footage + musik,
+  aturan dari skill video-editor-shorts di `references/shorts-beat.md`), dan `studio/` Remotion (motion graphic).
 
 ## Peta kode (graphify)
 - Sebelum membaca banyak file, baca `graphify-out/GRAPH_REPORT.md` atau jalankan `graphify explain "NamaKomponen"` /

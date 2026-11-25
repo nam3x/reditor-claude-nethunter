@@ -1,6 +1,6 @@
 ---
 name: "reditor-nethunter"
-description: "Editor video + motion graphic storytelling di terminal Kali NetHunter (Android arm64): Remotion storyteller (Shorts 9:16, YouTube 16:9, hybrid highlight, takarir karaoke per kata, preset stickman/Cetakinds, sumber fakta di video) DIGABUNG editor ffmpeg ringan untuk raw footage (cut, transisi, LUT, VFX light leak/grain/dust, ducking musik, loudnorm). Pakai saat pengguna minta edit video, olah raw footage, motion graphic, takarir karaoke, VFX, atau menyebut reditor/NetHunter/HP."
+description: "Editor video + motion graphic storytelling di terminal Kali NetHunter (Android arm64): Shorts/Reels sinkron beat dari raw footage + musik (video-editor-shorts: goyang kamera seperlunya, motion control, efek menempel di wajah/badan, kartu 3:4 modern clean), Remotion storyteller (Shorts 9:16, YouTube 16:9, hybrid highlight, takarir karaoke per kata, preset stickman/Cetakinds, sumber fakta di video) DIGABUNG editor ffmpeg ringan untuk raw footage (cut, transisi, LUT, VFX light leak/grain/dust, ducking musik, loudnorm). Pakai saat pengguna minta edit video, olah raw footage, motion graphic, takarir karaoke, VFX, atau menyebut reditor/NetHunter/HP."
 ---
 
 # reditor-nethunter — Director, Editor & Production Skill (Kali NetHunter)
@@ -14,7 +14,10 @@ referensi/     gambar/video referensi gaya                  -> studio/public/ima
 VO/            voiceover final pengguna (apa adanya)        -> studio/public/audio/voiceover.mp3
 Musik/         musik latar (pengguna / bed prosedural)      -> studio/public/music/
 VFX/           light-leaks, flares, dust, grain, textures, luts (.cube), transitions, sfx  -> studio/public/vfx/
-editor/        reditor_edit.py (editor ffmpeg), transcribe.py, gen_vfx.sh, gen_luts.py
+editor/        reditor_edit.py (editor ffmpeg), transcribe.py, gen_vfx.sh, gen_luts.py,
+               beats.py (BPM/beat/drop), track.py (wajah/badan), outline.py, shorts_plan.py (Mode Shorts Beat)
+analisis/      grid footage, beats.json, contact sheet shot (dibuat otomatis)
+plan.json      rencana shot Mode Shorts Beat (simpan untuk revisi)
 studio/        proyek Remotion (manifest.json, src/, scripts/sync_timeline.py, make_contact_sheet.sh, asset_cache.py)
 bin/reditor    CLI satu pintu (reditor help)
 ```
@@ -27,10 +30,11 @@ bin/reditor    CLI satu pintu (reditor help)
 | Bahan utama raw footage (vlog, b-roll, produk, event), butuh cut + transisi + grading + VFX + takarir | **Mode Editor** (`reditor edit ...`, ffmpeg, tanpa browser — 5–20x lebih cepat di HP) |
 | Motion graphic, tipografi kinetik, stickman/chibi, 3D, explainer | **Mode Remotion** (`studio/`) |
 | Motion graphic yang menyisipkan footage | Remotion dengan adegan `"visualType": "footage"` (+ `footage`, `footageIn`, `vfx`) |
-Keduanya memakai VO, transkrip, folder, dan aturan loudness yang sama.
+| Shorts/Reels dari raw footage + **musik** (potong sinkron beat, goyang kamera, efek menempel wajah/badan, kartu 3:4) | **Mode Shorts Beat** (`reditor shorts ...`, komposisi `ShortsBeat`) — WAJIB baca `references/shorts-beat.md` |
+Semua mesin memakai folder yang sama. Mode Editor & Remotion memakai VO + transkrip; Mode Shorts Beat boleh tanpa VO (edit musik, master ≈ −9 LUFS) dan mengikuti selera pengguna di `references/shorts-beat.md` (tanpa teks di atas video kecuali diminta, garis putih tipis + emas `#E8C27A`, goyang hanya di drop/awal bar/fast).
 
 ## Mode Editor (ffmpeg) — alur
-1. Gerbang Aset tetap berlaku (raw footage pengguna = acuan visual; VO wajib kecuali montage musik yang dinyatakan pengguna tanpa narasi).
+1. Gerbang Aset tetap berlaku (raw footage pengguna = acuan visual; VO wajib kecuali montage musik yang dinyatakan pengguna tanpa narasi). Untuk Shorts sinkron beat dengan musik, pakai Mode Shorts Beat.
 2. `reditor transcribe` → `transcript.json` (faster-whisper int8, model `small`; HP RAM < 6 GB pakai `--model base`). Lalu ukur tempo (skrip mencetaknya) — audio tidak diubah.
 3. `reditor edit auto 9:16` (atau `16:9`) → `edit.json`. Lalu **sutradarai** `edit.json` sesuai naskah/transkrip: urutan klip, `in` (detik mulai di klip), `duration`, `motion` (`kenburns`|`punch`|`none`), `transition` (`fade`, `smoothleft`, `smoothup`, `circleopen`, `zoomin`, `fadeblack`, `slideleft`, `dissolve`, `cut`), `headline`/`subtext`, `vfx` per klip, `audioGainDb` (ambience klip), `sfx` (`{file, at, gainDb}`), `lut`, `lutStrength`, `grain`, `vignette`, `music`, `musicGainDb`, `duck`.
    - Potongan jatuh di batas kalimat/jeda transkrip (lihat `transcript.json`), bukan di tengah kata. Ganti klip tiap 1,5–3,5 dtk untuk Shorts, 3–6 dtk untuk 16:9.
@@ -66,7 +70,7 @@ Dilarang menjalankan render dalam bentuk APA PUN — pratinjau skala 0.5, `make_
      - Jika pengguna menyebut kode gaya **A1–A8 atau B1–B7**, "stickman director", atau gaya seperti "pixel theater", "rubber hose", "TV retro", "amber noir", "hitam putih klasik", tawarkan atau pakai preset dari `references/stickman-director.md`. Untuk topik stickman umum, preset itu boleh menjadi pilihan tambahan di samping Stick-figure Kok Bisa. Sebelum dikonfirmasi, sebut tingkat kelayakannya di Remotion (Penuh / Mendekati / Terbatas) sesuai tabel di referensi itu.
      - Style yang sudah dikonfirmasi pengguna dicatat sebagai objek `"style"` di `manifest.json` (nama, palet, font, gaya grafis, nuansa gerak) dan diterapkan dengan menyesuaikan nilai di `theme.ts`. Visual dibuat murni dengan kode (bentuk, ikon SVG, gradien, tipografi kinetik, objek 3D primitif) mengikuti style tersebut.
      - Style yang belum dikonfirmasi pengguna TIDAK dihitung sebagai acuan visual.
-2. **Voiceover (wajib, tanpa pengganti)** — file audio voiceover final dari pengguna di folder `VO/` (disalin apa adanya ke `studio/public/audio/voiceover.mp3` oleh `reditor link`), beserta transkrip per kata (`reditor transcribe` → `transcript.json`, format WhisperX). Satu-satunya pengecualian: **montage musik tanpa narasi di Mode Editor**, dan hanya jika pengguna sendiri menyatakan videonya tanpa voiceover.
+2. **Voiceover (wajib, tanpa pengganti)** — file audio voiceover final dari pengguna di folder `VO/` (disalin apa adanya ke `studio/public/audio/voiceover.mp3` oleh `reditor link`), beserta transkrip per kata (`reditor transcribe` → `transcript.json`, format WhisperX). Pengecualian hanya untuk edit musik tanpa narasi: **Mode Shorts Beat** (footage + musik), atau montage musik di Mode Editor yang dinyatakan pengguna tanpa voiceover.
 
 Selama syarat belum lengkap:
 - BOLEH: menulis naskah voiceover, menawarkan/menyusun style brief, menyusun `manifest.json`/storyboard, menjalankan `sync_timeline.py` tanpa transkrip untuk estimasi, menulis kode komponen Remotion, dan mengambil aset yang SUDAH ADA di cache GitHub (cache HIT tidak termasuk render).

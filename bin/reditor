@@ -35,6 +35,16 @@ ALUR MOTION GRAPHIC (Remotion storyteller):
   reditor sheet [Komposisi]      contact sheet seluruh video
   reditor render [short|full|highlight]   render final Remotion
 
+ALUR SHORTS BEAT (video-editor-shorts: footage + musik, sinkron ketukan, kartu 3:4):
+  reditor shorts analyze         grid footage + beat/drop musik -> analisis/
+  reditor shorts init [dtk]      draf plan.json (drop di detik ~15)  [--title --artist]
+  reditor shorts sheet           cek crop tiap shot -> analisis/shots_sheet.jpg
+  reditor shorts build           potong klip 3:4, lacak wajah/badan, outline, mastering musik
+  reditor shorts render [vN]     render per potongan + mux audio -> studio/out/ShortsBeat_vN.mp4
+  reditor beats <audio>          deteksi BPM/beat/downbeat/drop -> analisis/beats.json
+  reditor track [video|--all]    lacak wajah/badan -> tracks/*.json (motion control, cx)
+  reditor models                 unduh model u2net_human_seg (±176 MB) + Haar ke editor/models/
+
 LAINNYA:
   reditor setup                  jalankan installer NetHunter (apt + npm + pip)
   reditor vfx [--with-music]     buat ulang paket VFX prosedural di VFX/
@@ -158,6 +168,20 @@ case "${1:-help}" in
                 check)   python3 "$ROOT/editor/reditor_edit.py" check "$@" ;;
                 *) echo "reditor edit auto|check|preview|render" ;;
               esac ;;
+  shorts)     shift; sub="${1:-help}"; shift || true
+              case "$sub" in
+                init)    if [[ "${1:-}" =~ ^[0-9.]+$ ]]; then sec="$1"; shift; else sec=30; fi
+                         python3 "$ROOT/editor/shorts_plan.py" init --seconds "$sec" "$@" ;;
+                analyze|sheet|build) python3 "$ROOT/editor/shorts_plan.py" "$sub" "$@" ;;
+                render)  cd "$STUDIO"; bash scripts/render_chunks.sh ShortsBeat "${REDITOR_CHUNK:-300}" "${1:-v1}" ;;
+                *) echo "reditor shorts analyze|init [dtk]|sheet|build|render [vN]" ;;
+              esac ;;
+  beats)      shift; mkdir -p "$ROOT/analisis"; python3 "$ROOT/editor/beats.py" "${1:?file audio}" --out "$ROOT/analisis/beats.json" "${@:2}" ;;
+  track)      shift; if [ $# -eq 0 ]; then set -- --all; fi; python3 "$ROOT/editor/track.py" "$@" ;;
+  models)     mkdir -p "$ROOT/editor/models"; cd "$ROOT/editor/models"
+              [ -s u2net_human_seg.onnx ] || curl -fL --retry 3 -o u2net_human_seg.onnx https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net_human_seg.onnx
+              [ -s haarcascade_frontalface_alt2.xml ] || curl -fsSL -o haarcascade_frontalface_alt2.xml https://raw.githubusercontent.com/opencv/opencv/4.x/data/haarcascades/haarcascade_frontalface_alt2.xml
+              ls -la "$ROOT/editor/models" ;;
   vfx)        shift; bash "$ROOT/editor/gen_vfx.sh" "$ROOT/VFX" 4 "${1:-}" ;;
   graph)      need graphify || { c_err "graphify belum ada: pip install --break-system-packages graphifyy"; exit 1; }
               graphify update "$ROOT" ;;

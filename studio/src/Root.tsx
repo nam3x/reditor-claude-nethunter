@@ -4,6 +4,7 @@ import timelineJson from './timeline.generated.json';
 import { StoryComposition } from './StoryComposition';
 import type { Timeline } from './types';
 import { loadFonts } from './fonts';
+import { ShortsBeat, shortsData } from './shorts/ShortsBeat';
 
 loadFonts();
 
@@ -41,6 +42,15 @@ export const RemotionRoot: React.FC = () => (
       width={1080}
       height={1920}
       defaultProps={{ variant: 'highlight' as const }}
+    />
+    {/* Mode Shorts Beat (video-editor-shorts): footage + musik, kartu 3:4, sinkron ketukan */}
+    <Composition
+      id="ShortsBeat"
+      component={ShortsBeat}
+      durationInFrames={Math.max(1, shortsData.totalF)}
+      fps={shortsData.fps || 30}
+      width={1080}
+      height={1920}
     />
   </>
 );

@@ -28,3 +28,9 @@ __pycache__/
 Musik/*
 !Musik/README.md
 !Musik/bed_procedural_clean.mp3
+editor/models/
+tracks/
+
+# hasil analisis & rencana shorts
+analisis/
+plan.json

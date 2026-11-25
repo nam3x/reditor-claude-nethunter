@@ -1,6 +1,6 @@
 // Memuat font lokal dari public/fonts (diisi installer dari @fontsource) agar render offline & konsisten.
 // Jika file tidak ada, Chromium memakai font sistem (fonts-inter dari apt) — render tetap jalan.
-import { continueRender, delayRender, staticFile } from 'remotion';
+import { continueRender, delayRender, getStaticFiles, staticFile } from 'remotion';
 
 const FILES: [string, string, string][] = [
   ['Inter', '400', 'inter-latin-400-normal.woff2'],
@@ -14,9 +14,10 @@ let started = false;
 export function loadFonts() {
   if (started || typeof document === 'undefined') return;
   started = true;
+  const present = new Set(getStaticFiles().map((f) => f.name));
   const handle = delayRender('fonts');
   Promise.all(
-    FILES.map(async ([family, weight, file]) => {
+    FILES.filter(([, , file]) => present.has(`fonts/${file}`)).map(async ([family, weight, file]) => {
       try {
         const face = new FontFace(family, `url(${staticFile(`fonts/${file}`)})`, { weight });
         await face.load();

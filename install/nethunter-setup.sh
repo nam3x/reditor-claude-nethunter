@@ -8,6 +8,7 @@
 #   REDITOR_SKIP_WHISPER=1   lewati faster-whisper (hemat ±300 MB)
 #   REDITOR_SKIP_CLAUDE=1    lewati pemasangan Claude Code
 #   REDITOR_SKIP_CHROMIUM=1  lewati chromium apt (fallback browser Remotion)
+#   REDITOR_SKIP_MODELS=1    lewati unduhan model u2net (±176 MB)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 say()  { printf '\n\033[1;36m== %s\033[0m\n' "$*"; }
@@ -56,9 +57,15 @@ if [ "${SHM:-0}" -lt 256 ]; then
   $SUDO mount -t tmpfs -o size=512M tmpfs /dev/shm 2>/dev/null && echo "/dev/shm -> 512M" || warn "gagal remount /dev/shm; Remotion akan memakai --disable-dev-shm-usage"
 fi
 
-say "4. Python: graphify (peta kode) + faster-whisper (takarir per kata)"
+say "4. Python: graphify, faster-whisper, OpenCV 4 (Haar) + onnxruntime (u2net) untuk pelacakan"
 PIP=(python3 -m pip install --break-system-packages -q)
 "${PIP[@]}" graphifyy || pipx install graphifyy || warn "graphify gagal dipasang (opsional)"
+# OpenCV 5 menghapus Haar -> kunci ke 4.x. apt python3-opencv (4.x) juga boleh.
+"${PIP[@]}" "opencv-python-headless<5" || $SUDO apt-get install -y python3-opencv || warn "OpenCV gagal (pelacakan wajah nonaktif)"
+"${PIP[@]}" onnxruntime || warn "onnxruntime gagal (segmentasi badan u2net nonaktif, fallback HOG)"
+if [ "${REDITOR_SKIP_MODELS:-0}" != "1" ]; then
+  bash "$ROOT/bin/reditor" models || warn "unduh model gagal; ulangi nanti: reditor models"
+fi
 if [ "${REDITOR_SKIP_WHISPER:-0}" != "1" ]; then
   "${PIP[@]}" faster-whisper || warn "faster-whisper gagal (butuh wheel ctranslate2 aarch64). Alternatif: whisper.cpp, lihat docs/REKOMENDASI.md"
 fi
