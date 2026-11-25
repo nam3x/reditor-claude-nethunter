@@ -1,0 +1,343 @@
+{
+  "projectTitle": "Contoh reditor",
+  "fps": 30,
+  "audioPath": null,
+  "fullDurationInFrames": 300,
+  "highlightDurationInFrames": 300,
+  "fullScenes": [
+    {
+      "id": "scene-01-hook",
+      "beat": "hook",
+      "energy": "T3",
+      "highlight": true,
+      "visualType": "kinetic",
+      "transitionIn": "zoom",
+      "headline": "Ini Contoh Hook",
+      "captionText": "Ini contoh hook yang langsung bikin penasaran.",
+      "startFrame": 0,
+      "durationInFrames": 96,
+      "audioStartFrame": 0,
+      "wordTimings": [
+        {
+          "word": "Ini",
+          "startFrame": 0,
+          "endFrame": 13
+        },
+        {
+          "word": "contoh",
+          "startFrame": 13,
+          "endFrame": 25
+        },
+        {
+          "word": "hook",
+          "startFrame": 25,
+          "endFrame": 38
+        },
+        {
+          "word": "yang",
+          "startFrame": 38,
+          "endFrame": 50
+        },
+        {
+          "word": "langsung",
+          "startFrame": 50,
+          "endFrame": 63
+        },
+        {
+          "word": "bikin",
+          "startFrame": 63,
+          "endFrame": 75
+        },
+        {
+          "word": "penasaran.",
+          "startFrame": 75,
+          "endFrame": 88
+        }
+      ]
+    },
+    {
+      "id": "scene-02-footage",
+      "beat": "setup",
+      "energy": "T2",
+      "highlight": true,
+      "visualType": "footage",
+      "footage": "footage/contoh.mp4",
+      "footageIn": 0,
+      "transitionIn": "whip",
+      "vfx": [
+        {
+          "file": "vfx/light-leaks/leak_warm_01.mp4",
+          "blend": "screen",
+          "opacity": 0.55
+        }
+      ],
+      "headline": "Footage + VFX",
+      "captionText": "Lalu footage dari folder raw footage tampil dengan light leak halus.",
+      "startFrame": 96,
+      "durationInFrames": 138,
+      "audioStartFrame": 96,
+      "wordTimings": [
+        {
+          "word": "Lalu",
+          "startFrame": 0,
+          "endFrame": 12
+        },
+        {
+          "word": "footage",
+          "startFrame": 12,
+          "endFrame": 24
+        },
+        {
+          "word": "dari",
+          "startFrame": 24,
+          "endFrame": 35
+        },
+        {
+          "word": "folder",
+          "startFrame": 35,
+          "endFrame": 47
+        },
+        {
+          "word": "raw",
+          "startFrame": 47,
+          "endFrame": 59
+        },
+        {
+          "word": "footage",
+          "startFrame": 59,
+          "endFrame": 71
+        },
+        {
+          "word": "tampil",
+          "startFrame": 71,
+          "endFrame": 83
+        },
+        {
+          "word": "dengan",
+          "startFrame": 83,
+          "endFrame": 95
+        },
+        {
+          "word": "light",
+          "startFrame": 95,
+          "endFrame": 106
+        },
+        {
+          "word": "leak",
+          "startFrame": 106,
+          "endFrame": 118
+        },
+        {
+          "word": "halus.",
+          "startFrame": 118,
+          "endFrame": 130
+        }
+      ]
+    },
+    {
+      "id": "scene-03-cta",
+      "beat": "cta",
+      "energy": "T1",
+      "highlight": true,
+      "visualType": "kinetic",
+      "transitionIn": "flash",
+      "headline": "Ikuti Untuk Lainnya",
+      "captionText": "Ikuti untuk video berikutnya.",
+      "startFrame": 234,
+      "durationInFrames": 66,
+      "audioStartFrame": 234,
+      "wordTimings": [
+        {
+          "word": "Ikuti",
+          "startFrame": 0,
+          "endFrame": 14
+        },
+        {
+          "word": "untuk",
+          "startFrame": 14,
+          "endFrame": 29
+        },
+        {
+          "word": "video",
+          "startFrame": 29,
+          "endFrame": 44
+        },
+        {
+          "word": "berikutnya.",
+          "startFrame": 44,
+          "endFrame": 58
+        }
+      ]
+    }
+  ],
+  "highlightScenes": [
+    {
+      "id": "scene-01-hook",
+      "beat": "hook",
+      "energy": "T3",
+      "highlight": true,
+      "visualType": "kinetic",
+      "transitionIn": "zoom",
+      "headline": "Ini Contoh Hook",
+      "captionText": "Ini contoh hook yang langsung bikin penasaran.",
+      "startFrame": 0,
+      "durationInFrames": 96,
+      "audioStartFrame": 0,
+      "wordTimings": [
+        {
+          "word": "Ini",
+          "startFrame": 0,
+          "endFrame": 13
+        },
+        {
+          "word": "contoh",
+          "startFrame": 13,
+          "endFrame": 25
+        },
+        {
+          "word": "hook",
+          "startFrame": 25,
+          "endFrame": 38
+        },
+        {
+          "word": "yang",
+          "startFrame": 38,
+          "endFrame": 50
+        },
+        {
+          "word": "langsung",
+          "startFrame": 50,
+          "endFrame": 63
+        },
+        {
+          "word": "bikin",
+          "startFrame": 63,
+          "endFrame": 75
+        },
+        {
+          "word": "penasaran.",
+          "startFrame": 75,
+          "endFrame": 88
+        }
+      ]
+    },
+    {
+      "id": "scene-02-footage",
+      "beat": "setup",
+      "energy": "T2",
+      "highlight": true,
+      "visualType": "footage",
+      "footage": "footage/contoh.mp4",
+      "footageIn": 0,
+      "transitionIn": "whip",
+      "vfx": [
+        {
+          "file": "vfx/light-leaks/leak_warm_01.mp4",
+          "blend": "screen",
+          "opacity": 0.55
+        }
+      ],
+      "headline": "Footage + VFX",
+      "captionText": "Lalu footage dari folder raw footage tampil dengan light leak halus.",
+      "startFrame": 96,
+      "durationInFrames": 138,
+      "audioStartFrame": 96,
+      "wordTimings": [
+        {
+          "word": "Lalu",
+          "startFrame": 0,
+          "endFrame": 12
+        },
+        {
+          "word": "footage",
+          "startFrame": 12,
+          "endFrame": 24
+        },
+        {
+          "word": "dari",
+          "startFrame": 24,
+          "endFrame": 35
+        },
+        {
+          "word": "folder",
+          "startFrame": 35,
+          "endFrame": 47
+        },
+        {
+          "word": "raw",
+          "startFrame": 47,
+          "endFrame": 59
+        },
+        {
+          "word": "footage",
+          "startFrame": 59,
+          "endFrame": 71
+        },
+        {
+          "word": "tampil",
+          "startFrame": 71,
+          "endFrame": 83
+        },
+        {
+          "word": "dengan",
+          "startFrame": 83,
+          "endFrame": 95
+        },
+        {
+          "word": "light",
+          "startFrame": 95,
+          "endFrame": 106
+        },
+        {
+          "word": "leak",
+          "startFrame": 106,
+          "endFrame": 118
+        },
+        {
+          "word": "halus.",
+          "startFrame": 118,
+          "endFrame": 130
+        }
+      ]
+    },
+    {
+      "id": "scene-03-cta",
+      "beat": "cta",
+      "energy": "T1",
+      "highlight": true,
+      "visualType": "kinetic",
+      "transitionIn": "flash",
+      "headline": "Ikuti Untuk Lainnya",
+      "captionText": "Ikuti untuk video berikutnya.",
+      "startFrame": 234,
+      "durationInFrames": 66,
+      "audioStartFrame": 234,
+      "wordTimings": [
+        {
+          "word": "Ikuti",
+          "startFrame": 0,
+          "endFrame": 14
+        },
+        {
+          "word": "untuk",
+          "startFrame": 14,
+          "endFrame": 29
+        },
+        {
+          "word": "video",
+          "startFrame": 29,
+          "endFrame": 44
+        },
+        {
+          "word": "berikutnya.",
+          "startFrame": 44,
+          "endFrame": 58
+        }
+      ]
+    }
+  ],
+  "sources": [],
+  "disclaimer": null,
+  "musicPath": "music/bed_procedural_clean.mp3",
+  "musicVolume": 0.08
+}

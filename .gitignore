@@ -1,0 +1,30 @@
+# media pengguna (besar & pribadi) — struktur folder tetap di-commit lewat README/.gitkeep
+raw-footage/*
+!raw-footage/README.md
+!raw-footage/.gitkeep
+referensi/*
+!referensi/README.md
+!referensi/.gitkeep
+VO/*
+!VO/README.md
+!VO/.gitkeep
+
+# hasil & cache
+out/
+.reditor-work/
+transcript.json
+edit.json
+studio/out/
+studio/transcript.json
+studio/public/
+studio/node_modules/
+node_modules/
+graphify-out/
+__pycache__/
+*.pyc
+.DS_Store
+
+# musik pengguna (lisensi pribadi); bed prosedural tetap di-commit
+Musik/*
+!Musik/README.md
+!Musik/bed_procedural_clean.mp3

@@ -1,0 +1,64 @@
+{
+  "projectTitle": "Contoh reditor",
+  "mode": "short",
+  "fps": 30,
+  "audioPath": "audio/voiceover.mp3",
+  "musicPath": "music/bed_procedural_clean.mp3",
+  "musicVolume": 0.08,
+  "style": {
+    "name": "Clean Modern Dark",
+    "palette": [
+      "#0B0F19",
+      "#131A2A",
+      "#F8FAFC",
+      "#38BDF8",
+      "#F59E0B"
+    ],
+    "font": "Inter",
+    "graphic": "tipografi kinetik + footage + light leak tipis",
+    "motion": "snappy, bersih",
+    "confirmed": false
+  },
+  "sources": [],
+  "scenes": [
+    {
+      "id": "scene-01-hook",
+      "beat": "hook",
+      "energy": "T3",
+      "highlight": true,
+      "visualType": "kinetic",
+      "transitionIn": "zoom",
+      "headline": "Ini Contoh Hook",
+      "captionText": "Ini contoh hook yang langsung bikin penasaran."
+    },
+    {
+      "id": "scene-02-footage",
+      "beat": "setup",
+      "energy": "T2",
+      "highlight": true,
+      "visualType": "footage",
+      "footage": "footage/contoh.mp4",
+      "footageIn": 0,
+      "transitionIn": "whip",
+      "vfx": [
+        {
+          "file": "vfx/light-leaks/leak_warm_01.mp4",
+          "blend": "screen",
+          "opacity": 0.55
+        }
+      ],
+      "headline": "Footage + VFX",
+      "captionText": "Lalu footage dari folder raw footage tampil dengan light leak halus."
+    },
+    {
+      "id": "scene-03-cta",
+      "beat": "cta",
+      "energy": "T1",
+      "highlight": true,
+      "visualType": "kinetic",
+      "transitionIn": "flash",
+      "headline": "Ikuti Untuk Lainnya",
+      "captionText": "Ikuti untuk video berikutnya."
+    }
+  ]
+}

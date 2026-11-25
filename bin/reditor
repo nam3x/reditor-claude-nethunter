@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+# reditor — CLI editor video untuk Kali NetHunter (terminal), menggabungkan:
+#   * Remotion storyteller (motion graphic + takarir karaoke)   -> folder studio/
+#   * Editor ffmpeg ringan (raw footage + VFX + LUT + VO/musik) -> folder editor/
+# Jalankan dari mana saja: reditor <perintah>   (setelah `bash install/nethunter-setup.sh`)
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+STUDIO="$ROOT/studio"
+PUB="$STUDIO/public"
+cd "$ROOT"
+
+c_ok()   { printf '\033[32m%s\033[0m\n' "$*"; }
+c_warn() { printf '\033[33m%s\033[0m\n' "$*"; }
+c_err()  { printf '\033[31m%s\033[0m\n' "$*" >&2; }
+need()   { command -v "$1" >/dev/null 2>&1; }
+
+first_audio() { find "$1" -maxdepth 1 -type f \( -iname '*.mp3' -o -iname '*.wav' -o -iname '*.m4a' -o -iname '*.aac' -o -iname '*.ogg' -o -iname '*.flac' -o -iname '*.opus' \) ! -name '.*' 2>/dev/null | sort | head -n1; }
+
+usage() {
+  cat <<'EOF'
+reditor — editor video di terminal NetHunter
+
+ALUR CEPAT (editor ffmpeg, tanpa browser — paling ringan di HP):
+  reditor doctor                 cek semua dependensi & folder
+  reditor transcribe             VO/ -> transcript.json (takarir per kata, offline)
+  reditor edit auto [9:16|16:9]  susun edit.json otomatis dari raw-footage/
+  reditor edit preview           render cepat 540p  -> out/edit_final_preview.mp4
+  reditor edit render            render final 1080p -> out/edit_final.mp4
+
+ALUR MOTION GRAPHIC (Remotion storyteller):
+  reditor link                   salin raw-footage/ referensi/ VO/ Musik/ VFX/ ke studio/public/
+  reditor sync                   manifest.json + transcript.json -> timeline
+  reditor still <Komposisi> <frame>   render 1 frame inspeksi (ringan)
+  reditor sheet [Komposisi]      contact sheet seluruh video
+  reditor render [short|full|highlight]   render final Remotion
+
+LAINNYA:
+  reditor setup                  jalankan installer NetHunter (apt + npm + pip)
+  reditor vfx [--with-music]     buat ulang paket VFX prosedural di VFX/
+  reditor graph                  perbarui peta kode graphify (graphify-out/)
+  reditor export                 salin out/*.mp4 ke /sdcard/Movies/reditor (galeri HP)
+  reditor clean                  hapus file antara .reditor-work/ (cache klip)
+EOF
+}
+
+cmd_doctor() {
+  local bad=0
+  echo "== reditor doctor =="
+  echo "arch: $(uname -m)  | kernel: $(uname -r)"
+  for b in ffmpeg ffprobe node npm npx python3 git; do
+    if need "$b"; then c_ok "  [ok] $b $( ($b --version 2>/dev/null || $b -version 2>/dev/null) | head -n1 | cut -c1-60)"; else c_err "  [!!] $b tidak ada"; bad=1; fi
+  done
+  if need node; then
+    local major; major=$(node -p 'process.versions.node.split(".")[0]')
+    [ "$major" -ge 18 ] && c_ok "  [ok] Node >= 18" || { c_err "  [!!] Node $major terlalu lama (butuh >= 18)"; bad=1; }
+  fi
+  ffmpeg -hide_banner -filters 2>/dev/null | grep -q ' subtitles ' && c_ok "  [ok] ffmpeg libass (takarir)" || c_warn "  [..] ffmpeg tanpa libass: takarir burn-in tidak tersedia"
+  ffmpeg -hide_banner -filters 2>/dev/null | grep -q ' lut3d ' && c_ok "  [ok] ffmpeg lut3d" || c_warn "  [..] ffmpeg tanpa lut3d"
+  need graphify && c_ok "  [ok] graphify" || c_warn "  [..] graphify belum terpasang (pip install --break-system-packages graphifyy)"
+  python3 -c 'import faster_whisper' 2>/dev/null && c_ok "  [ok] faster-whisper" || c_warn "  [..] faster-whisper belum ada (reditor transcribe akan gagal)"
+  [ -d "$STUDIO/node_modules/remotion" ] && c_ok "  [ok] studio/node_modules" || c_warn "  [..] studio belum di-npm install (cd studio && npm install)"
+  for b in /usr/bin/chromium /usr/bin/chromium-browser; do [ -x "$b" ] && c_ok "  [ok] chromium sistem: $b (fallback Remotion)"; done
+  local shm; shm=$(df -m /dev/shm 2>/dev/null | awk 'NR==2{print $2}')
+  [ -n "${shm:-}" ] && { [ "$shm" -ge 256 ] && c_ok "  [ok] /dev/shm ${shm}MB" || c_warn "  [..] /dev/shm hanya ${shm}MB — Chromium bisa crash. sudo mount -o remount,size=512M /dev/shm"; }
+  local mem; mem=$(awk '/MemAvailable/{print int($2/1024)}' /proc/meminfo 2>/dev/null || echo 0)
+  [ "$mem" -ge 1500 ] && c_ok "  [ok] RAM tersedia ${mem}MB" || c_warn "  [..] RAM tersedia ${mem}MB — pakai REDITOR_CONCURRENCY=1"
+  echo "== folder =="
+  for d in raw-footage referensi VO Musik VFX; do
+    printf '  %-12s %s file\n' "$d/" "$(find "$d" -type f ! -name '.gitkeep' ! -name 'README.md' 2>/dev/null | wc -l)"
+  done
+  [ $bad -eq 0 ] && c_ok "Siap." || c_err "Ada dependensi yang kurang. Jalankan: reditor setup"
+}
+
+cmd_link() {
+  # Salin (bukan symlink) — /sdcard (FUSE) tidak mendukung symlink, dan Remotion menyajikan public/ apa adanya.
+  mkdir -p "$PUB"/{footage,images,audio,music,vfx}
+  if need rsync; then
+    rsync -a --exclude README.md --exclude .gitkeep raw-footage/ "$PUB/footage/"
+    rsync -a --exclude README.md --exclude .gitkeep referensi/   "$PUB/images/"
+    rsync -a --exclude README.md --exclude .gitkeep Musik/       "$PUB/music/"
+    rsync -a --exclude README.md --exclude .gitkeep VFX/         "$PUB/vfx/"
+  else
+    cp -ru raw-footage/. "$PUB/footage/"; cp -ru referensi/. "$PUB/images/"
+    cp -ru Musik/. "$PUB/music/"; cp -ru VFX/. "$PUB/vfx/"
+  fi
+  local vo; vo=$(first_audio VO)
+  if [ -n "$vo" ]; then
+    # VO disalin apa adanya (tidak di-encode ulang bila sudah mp3) — aturan: VO tidak diubah
+    case "${vo,,}" in
+      *.mp3) cp -u "$vo" "$PUB/audio/voiceover.mp3" ;;
+      *) ffmpeg -hide_banner -loglevel error -y -i "$vo" -c:a libmp3lame -b:a 256k "$PUB/audio/voiceover.mp3" ;;
+    esac
+    c_ok "VO: $vo -> studio/public/audio/voiceover.mp3"
+  else
+    c_warn "VO/ masih kosong (Gerbang Aset: render Remotion menunggu voiceover)."
+  fi
+  local mus; mus=$(first_audio Musik)
+  [ -n "$mus" ] && c_ok "Musik tersedia: public/music/$(basename "$mus")  (isi \"musicPath\" di manifest)"
+  # video referensi -> ambil 12 frame merata sebagai acuan visual
+  for v in referensi/*.{mp4,mov,mkv,webm}; do
+    [ -f "$v" ] || continue
+    local base; base=$(basename "${v%.*}")
+    local dur; dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$v" | cut -d. -f1)
+    [ -z "$dur" ] && continue
+    ffmpeg -hide_banner -loglevel error -y -i "$v" -vf "fps=12/${dur},scale=540:-2" "$PUB/images/ref_${base}_%02d.jpg"
+    c_ok "Referensi video $v -> 12 frame public/images/ref_${base}_*.jpg"
+  done
+  c_ok "public/ siap."
+}
+
+cmd_transcribe() {
+  local vo="${1:-$(first_audio VO)}"
+  [ -n "$vo" ] || { c_err "Tidak ada file di VO/"; exit 1; }
+  python3 "$ROOT/editor/transcribe.py" "$vo" --out "$ROOT/transcript.json" "${@:2}"
+  cp -f "$ROOT/transcript.json" "$STUDIO/transcript.json"
+}
+
+cmd_render() {
+  local which="${1:-short}"
+  cd "$STUDIO"
+  [ -f transcript.json ] || c_warn "studio/transcript.json belum ada — jalankan reditor transcribe"
+  case "$which" in
+    short|vertical) npx remotion render src/index.ts ShortVertical out/short_9x16.mp4 ;;
+    full)           npx remotion render src/index.ts MainStory out/main_16x9.mp4 ;;
+    highlight)      npx remotion render src/index.ts HighlightVertical out/highlight_9x16.mp4 ;;
+    *) c_err "pilih: short | full | highlight"; exit 1 ;;
+  esac
+  ls -la out/*.mp4
+}
+
+cmd_export() {
+  local dst="${REDITOR_EXPORT:-/sdcard/Movies/reditor}"
+  mkdir -p "$dst" 2>/dev/null || { c_err "Tidak bisa menulis ke $dst (izin storage NetHunter?)"; exit 1; }
+  find "$ROOT/out" "$STUDIO/out" -maxdepth 1 -name '*.mp4' -exec cp -v {} "$dst/" \; 2>/dev/null
+  c_ok "Disalin ke $dst — buka Galeri / File Manager Android."
+}
+
+case "${1:-help}" in
+  setup)      bash "$ROOT/install/nethunter-setup.sh" ;;
+  doctor)     cmd_doctor ;;
+  link)       cmd_link ;;
+  transcribe) shift; cmd_transcribe "$@" ;;
+  sync)       cmd_link >/dev/null; cd "$STUDIO"
+              if [ -f "$ROOT/transcript.json" ]; then cp -f "$ROOT/transcript.json" transcript.json; fi
+              if [ -f transcript.json ]; then python3 scripts/sync_timeline.py --manifest manifest.json --transcript transcript.json
+              else python3 scripts/sync_timeline.py --manifest manifest.json; fi ;;
+  still)      shift; cd "$STUDIO"; comp="${1:-ShortVertical}"; fr="${2:-30}"; mkdir -p out
+              npx remotion still src/index.ts "$comp" "out/still_${comp}_${fr}.jpg" --frame="$fr" --image-format=jpeg --log=error
+              echo "out/still_${comp}_${fr}.jpg" ;;
+  sheet)      shift; cd "$STUDIO"; bash scripts/make_contact_sheet.sh "${1:-ShortVertical}" ;;
+  render)     shift; cmd_render "$@" ;;
+  edit)       shift; sub="${1:-help}"; shift || true
+              case "$sub" in
+                auto)    python3 "$ROOT/editor/reditor_edit.py" auto --aspect "${1:-9:16}" ;;
+                preview) python3 "$ROOT/editor/reditor_edit.py" render --preview "$@" ;;
+                render)  python3 "$ROOT/editor/reditor_edit.py" render "$@" ;;
+                check)   python3 "$ROOT/editor/reditor_edit.py" check "$@" ;;
+                *) echo "reditor edit auto|check|preview|render" ;;
+              esac ;;
+  vfx)        shift; bash "$ROOT/editor/gen_vfx.sh" "$ROOT/VFX" 4 "${1:-}" ;;
+  graph)      need graphify || { c_err "graphify belum ada: pip install --break-system-packages graphifyy"; exit 1; }
+              graphify update "$ROOT" ;;
+  export)     cmd_export ;;
+  clean)      rm -rf -- "$ROOT/.reditor-work" && c_ok "cache klip dihapus" ;;
+  help|-h|--help) usage ;;
+  *) c_err "perintah tidak dikenal: $1"; usage; exit 1 ;;
+esac
